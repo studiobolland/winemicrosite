@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wine Microsite</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas
+    style="
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      background-color: black;
+    "
+    id="rive-canvas"
+  ></canvas>
+
+  <script src="https://unpkg.com/@rive-app/webgl2"></script>
+  <script>
+    const layout = new rive.Layout({
+      fit: rive.Fit.Layout,
+      layoutScaleFactor: 1,
+    });
+
+    const riveCanvas = document.getElementById("rive-canvas");
+
+    function computeSize() {
+      riveInstance.resizeDrawingSurfaceToCanvas();
+    }
+
+    window.onresize = computeSize;
+    window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+      .addEventListener("change", computeSize);
+
+    const riveInstance = new rive.Rive({
+      src: "winemicrosite.riv",
+      stateMachines: "State Machine 1",
+      canvas: riveCanvas,
+      artboard: "Dashboard",
+      layout: layout,
+      autoplay: true,
+      autoBind: false, // We will manually bind the view model
+      onLoad: () => {
+        riveInstance.resizeDrawingSurfaceToCanvas();
+
+        // Grab View Model and its instance
+        const viewModel = riveInstance.viewModelByName("View Model 1");
+        const vmi = viewModel.defaultInstance();
+        riveInstance.bindViewModelInstance(vmi);
+
+        const websiteProp = vmi.boolean("Website");
+
+        function checkWebsiteTrigger() {
+          if (websiteProp.value === true) {
+            window.open("https://highgatewineestate.co.za/our-wines/", "_blank");
+            websiteProp.value = false; // Reset so it doesn't fire again
+          }
+          requestAnimationFrame(checkWebsiteTrigger);
+        }
+
+        checkWebsiteTrigger();
+      },
+    });
+  </script>
+</body>
+</html>
